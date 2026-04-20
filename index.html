@@ -55,16 +55,24 @@ body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-h
 #export-modal>button{padding:10px 24px;font-size:14px;font-weight:bold;background:#4466aa;border:none;border-radius:6px;color:#fff;cursor:pointer;margin-top:10px}
 
 @media(max-width:600px){
-#editor-main{flex-direction:column}
-.sidebar{width:100%;flex-direction:row;flex-wrap:wrap;overflow-y:visible;overflow-x:auto;border-right:none;border-left:none;border-bottom:1px solid #333}
-#right-sidebar{border-left:none;border-bottom:1px solid #333}
-.sidebar-group{padding:6px;border-bottom:none;border-right:1px solid #333;display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+#editor{height:100vh;overflow:hidden}
+#editor-main{flex-direction:column;height:100%}
+#center-column{flex:none;height:50vh;min-height:200px;order:-1}
+#canvas-area{height:100%;padding:10px}
+#frame-bar{flex-wrap:wrap;justify-content:center}
+.sidebar{width:100%;flex-direction:row;flex-wrap:wrap;overflow-y:visible;overflow-x:auto;border-right:none;border-left:none;border-bottom:none;flex-shrink:0;justify-content:center}
+#left-sidebar{order:0}
+#right-sidebar{order:1;border-left:none;border-bottom:none}
+.sidebar-group{padding:6px;border-bottom:none;border-right:none;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px}
 .sidebar-group:last-child{border-right:none}
-.sidebar-group-label{margin-bottom:0;margin-right:6px;white-space:nowrap}
+.sidebar-group-label{display:none}
+#color-label{display:block!important;margin-bottom:0;margin-right:6px;white-space:nowrap}
+#color-group{width:100%;justify-content:center;order:-1}
+#output-group{width:100%;justify-content:center}
 .sidebar-group button,.tool-btn{display:inline-block;width:auto;min-height:36px;padding:6px 10px;margin-bottom:0}
 #color-pick{width:36px;height:36px;margin-bottom:0}
 #color-preview{width:36px;height:28px;margin-bottom:0}
-#center-column{flex:1;min-height:0}
+#editor-logo-area{display:none!important}
 }
 </style>
 </head>
@@ -99,18 +107,18 @@ body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-h
 <button id="btn-fill" onclick="setTool('fill')">🪣 Fill</button>
 <button id="btn-selection" onclick="setTool('selection')">⬚ Selection</button>
 </div>
-<div class="sidebar-group">
-<div class="sidebar-group-label">Color</div>
+<div class="sidebar-group" id="color-group">
+<div class="sidebar-group-label" id="color-label">Color</div>
 <input type="color" id="color-pick" value="#ffffff" oninput="currentColor=this.value">
 <div id="color-preview" style="background:#ffffff"></div>
 </div>
-<div class="sidebar-group">
+<div class="sidebar-group" id="output-group">
 <div class="sidebar-group-label">Output</div>
 <button onclick="openRehearsal()">▶ Rehearse</button>
 <button onclick="openExport()">💾 Export PNGs</button>
 </div>
 <div style="flex:1"></div>
-<div style="padding:8px;text-align:center">
+<div id="editor-logo-area" style="padding:8px;text-align:center">
 <img id="editor-logo" src="assets/logo-small.png" alt="Sprite Builder" style="max-width:140px;max-height:80px;opacity:0.5;display:none">
 <p style="font-size:9px;color:#555;margin-top:4px"><a href="https://www.andrewdoss.com/" target="_blank" style="color:#555;text-decoration:none">Copyright © 2026 Andrew Doss.<br>All Rights Reserved.</a></p>
 </div>
