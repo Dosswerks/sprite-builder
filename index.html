@@ -6,6 +6,7 @@
 <title>Sprite Builder</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
 body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column}
 #setup{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px}
 #setup h1{font-size:32px;color:#88aaff}
@@ -13,19 +14,31 @@ body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-h
 #setup input{width:100px;padding:6px;font-size:16px;background:#2a2a4a;border:2px solid #4466aa;border-radius:4px;color:#fff;text-align:center}
 #setup button{padding:12px 32px;font-size:16px;font-weight:bold;background:#4466aa;border:none;border-radius:6px;color:#fff;cursor:pointer}
 #setup button:hover{background:#5577bb}
-#editor{display:none;flex:1;flex-direction:column;height:100vh}
-#toolbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#12122a;border-bottom:2px solid #4466aa;flex-wrap:wrap}
-#toolbar button,.tool-btn{padding:6px 12px;font-size:12px;font-weight:bold;background:#2a2a4a;border:2px solid #4466aa;border-radius:4px;color:#fff;cursor:pointer}
-#toolbar button:hover,.tool-btn:hover{background:#3a3a5a}
-#toolbar button.active,.tool-btn.active{background:#4466aa;border-color:#88aaff}
-#toolbar .sep{width:1px;height:28px;background:#333;margin:0 4px}
-#color-pick{width:36px;height:28px;border:2px solid #4466aa;border-radius:4px;cursor:pointer;background:none;padding:0}
-#color-preview{width:28px;height:28px;border:2px solid #666;border-radius:4px}
-#frame-bar{display:flex;align-items:center;gap:6px;padding:6px 12px;background:#0e0e1e;border-bottom:1px solid #333;overflow-x:auto}
+#editor{display:none;flex:1;flex-direction:column;height:100vh;overflow:hidden}
+#editor-main{display:flex;flex:1;min-height:0}
+.sidebar{width:160px;background:#12122a;border-right:2px solid #333;display:flex;flex-direction:column;gap:0;overflow-y:auto;flex-shrink:0}
+#right-sidebar{border-right:none;border-left:2px solid #333}
+.sidebar-group{padding:8px;border-bottom:1px solid #333}
+.sidebar-group:last-child{border-bottom:none}
+.sidebar-group-label{font-size:10px;font-weight:bold;color:#88aaff;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.sidebar-group button,.tool-btn{display:block;width:100%;min-height:44px;padding:8px 10px;font-size:12px;font-weight:bold;background:#2a2a4a;border:2px solid #4466aa;border-radius:4px;color:#fff;cursor:pointer;margin-bottom:4px;text-align:left}
+.sidebar-group button:hover,.tool-btn:hover{background:#3a3a5a}
+.sidebar-group button.active,.tool-btn.active{background:#4466aa;border-color:#88aaff}
+.sidebar-group button:disabled{opacity:0.4;cursor:not-allowed}
+#color-pick{width:100%;height:36px;border:2px solid #4466aa;border-radius:4px;cursor:pointer;background:none;padding:0;margin-bottom:4px}
+#color-preview{width:100%;height:28px;border:2px solid #666;border-radius:4px}
+.color-row{display:flex;gap:6px;align-items:center}
+#frame-bar{display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 12px;background:#0e0e1e;border-bottom:1px solid #333;overflow-x:auto}
 .frame-thumb{width:48px;height:48px;border:2px solid #333;border-radius:4px;cursor:pointer;image-rendering:pixelated;background:#000}
 .frame-thumb.active{border-color:#88aaff;box-shadow:0 0 8px rgba(136,170,255,0.4)}
-#frame-bar button{padding:4px 10px;font-size:11px;font-weight:bold;background:#2a2a4a;border:1px solid #4466aa;border-radius:4px;color:#fff;cursor:pointer}
-#canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#111;overflow:hidden;position:relative}
+.frame-slot{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0}
+.frame-name{display:block;max-width:80px;font-size:10px;color:#88aaff;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:text;padding:1px 4px;border-radius:3px;outline:none;border:1px solid transparent}
+.frame-name:hover{border-color:#4466aa}
+.frame-name:focus{border-color:#88aaff;background:#2a2a4a}
+.frame-source{display:block;max-width:80px;font-size:9px;color:#888;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#frame-bar button{padding:4px 10px;font-size:11px;font-weight:bold;background:#2a2a4a;border:1px solid #4466aa;border-radius:4px;color:#fff;cursor:pointer;align-self:center}
+#center-column{flex:1;display:flex;flex-direction:column;min-width:0}
+#canvas-area{flex:1;display:flex;align-items:center;justify-content:center;background:#111;overflow:hidden;position:relative;touch-action:none;padding:20px}
 #edit-canvas{image-rendering:pixelated;cursor:crosshair}
 #rehearsal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:100;flex-direction:column;align-items:center;justify-content:center;gap:16px}
 #rehearsal canvas{image-rendering:pixelated;border:2px solid #4466aa}
@@ -40,53 +53,121 @@ body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-h
 #export-modal .export-row input{width:200px;padding:6px;background:#2a2a4a;border:1px solid #4466aa;color:#fff;border-radius:4px}
 #export-modal .export-row button{padding:6px 14px;font-size:12px;font-weight:bold;background:#4466aa;border:none;border-radius:4px;color:#fff;cursor:pointer}
 #export-modal>button{padding:10px 24px;font-size:14px;font-weight:bold;background:#4466aa;border:none;border-radius:6px;color:#fff;cursor:pointer;margin-top:10px}
+
+@media(max-width:600px){
+#editor-main{flex-direction:column}
+.sidebar{width:100%;flex-direction:row;flex-wrap:wrap;overflow-y:visible;overflow-x:auto;border-right:none;border-left:none;border-bottom:1px solid #333}
+#right-sidebar{border-left:none;border-bottom:1px solid #333}
+.sidebar-group{padding:6px;border-bottom:none;border-right:1px solid #333;display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.sidebar-group:last-child{border-right:none}
+.sidebar-group-label{margin-bottom:0;margin-right:6px;white-space:nowrap}
+.sidebar-group button,.tool-btn{display:inline-block;width:auto;min-height:36px;padding:6px 10px;margin-bottom:0}
+#color-pick{width:36px;height:36px;margin-bottom:0}
+#color-preview{width:36px;height:28px;margin-bottom:0}
+#center-column{flex:1;min-height:0}
+}
 </style>
 </head>
 <body>
 
 <div id="setup">
-<h1>🎨 Sprite Builder</h1>
+<img id="setup-logo" src="assets/logo.png" alt="Sprite Builder" style="max-width:320px;max-height:120px;display:none">
+<h1 id="setup-title">🎨 Sprite Builder</h1>
+<p style="font-size:11px;color:#666;margin-top:4px"><a href="https://www.andrewdoss.com/" target="_blank" style="color:#666;text-decoration:none">Copyright © 2026 Andrew Doss. All Rights Reserved.</a></p>
 <div style="display:flex;gap:20px;align-items:flex-end">
-<div><label>Width (px):</label><br><input id="inp-w" type="number" value="32" min="1" max="512"></div>
-<div><label>Height (px):</label><br><input id="inp-h" type="number" value="32" min="1" max="512"></div>
-<div><label>Frames:</label><br><input id="inp-frames" type="number" value="1" min="1" max="64"></div>
+<div style="text-align:center"><label>Width (px):</label><br><input id="inp-w" type="number" value="32" min="1" max="512"></div>
+<div style="text-align:center"><label>Height (px):</label><br><input id="inp-h" type="number" value="32" min="1" max="512"></div>
+<div style="text-align:center"><label>Frames:</label><br><input id="inp-frames" type="number" value="1" min="1" max="64"></div>
 </div>
 <button onclick="startEditor()">Start Editing</button>
 </div>
 
 <div id="editor">
-<div id="toolbar">
+<div id="editor-main">
+<div id="left-sidebar" class="sidebar">
+<div class="sidebar-group">
+<div class="sidebar-group-label">File</div>
+<button onclick="importImage()">📂 Import</button>
+<button onclick="saveProject()">📥 Save Project</button>
+<button onclick="loadProject()">📤 Load Project</button>
+</div>
+<div class="sidebar-group">
+<div class="sidebar-group-label">Drawing Tools</div>
 <button id="btn-pencil" class="active" onclick="setTool('pencil')">✏ Pencil</button>
 <button id="btn-eraser" onclick="setTool('eraser')">🧹 Eraser</button>
 <button id="btn-eyedrop" onclick="setTool('eyedrop')">💧 Eyedrop</button>
 <button id="btn-fill" onclick="setTool('fill')">🪣 Fill</button>
-<div class="sep"></div>
+<button id="btn-selection" onclick="setTool('selection')">⬚ Selection</button>
+</div>
+<div class="sidebar-group">
+<div class="sidebar-group-label">Color</div>
 <input type="color" id="color-pick" value="#ffffff" oninput="currentColor=this.value">
 <div id="color-preview" style="background:#ffffff"></div>
-<div class="sep"></div>
-<button onclick="importImage()">📂 Import</button>
-<button onclick="clearFrame()">🗑 Clear</button>
-<button onclick="copyFrame()">📋 Copy Frame</button>
-<button onclick="pasteFrame()">📌 Paste Frame</button>
-<div class="sep"></div>
+</div>
+<div class="sidebar-group">
+<div class="sidebar-group-label">Output</div>
 <button onclick="openRehearsal()">▶ Rehearse</button>
 <button onclick="openExport()">💾 Export PNGs</button>
 </div>
+<div style="flex:1"></div>
+<div style="padding:8px;text-align:center">
+<img id="editor-logo" src="assets/logo-small.png" alt="Sprite Builder" style="max-width:140px;max-height:80px;opacity:0.5;display:none">
+<p style="font-size:9px;color:#555;margin-top:4px"><a href="https://www.andrewdoss.com/" target="_blank" style="color:#555;text-decoration:none">Copyright © 2026 Andrew Doss.<br>All Rights Reserved.</a></p>
+</div>
+</div>
+<div id="center-column">
 <div id="frame-bar"></div>
 <div id="canvas-area">
 <canvas id="edit-canvas"></canvas>
 </div>
 </div>
+<div id="right-sidebar" class="sidebar">
+<div class="sidebar-group">
+<div class="sidebar-group-label">Frame Actions</div>
+<button id="btn-prev-frame" onclick="prevFrame()">◀ Prev Frame</button>
+<button id="btn-next-frame" onclick="nextFrame()">▶ Next Frame</button>
+<button onclick="copyFrame()">📋 Copy Frame</button>
+<button onclick="pasteFrame()">📌 Paste Frame</button>
+<button onclick="deleteFrame()">🗑 Delete Frame</button>
+<button onclick="clearFrame()">🗑 Clear Frame</button>
+</div>
+<div class="sidebar-group">
+<div class="sidebar-group-label">Clipboard</div>
+<button id="btn-cut-sel" onclick="cutSelection()">✂ Cut Selection</button>
+<button id="btn-copy-sel" onclick="copySelection()">📋 Copy Selection</button>
+<button id="btn-paste-sel" onclick="pasteSelection()">📌 Paste Selection</button>
+</div>
+<div class="sidebar-group">
+<div class="sidebar-group-label">Transform</div>
+<button id="btn-rotate-cw" onclick="rotateCW()" disabled>↻ Rotate CW</button>
+<button id="btn-rotate-ccw" onclick="rotateCCW()" disabled>↺ Rotate CCW</button>
+<button id="btn-flip-h" onclick="flipH()" disabled>⇔ Flip H</button>
+</div>
+<div class="sidebar-group">
+<div class="sidebar-group-label">Edit</div>
+<button onclick="undoAction()">↩ Undo</button>
+</div>
+</div>
+</div>
+</div>
 
 <div id="rehearsal">
 <h2 style="color:#88aaff">Rehearsal Stage</h2>
+<div style="display:flex;gap:24px;align-items:flex-end;justify-content:center;flex-wrap:wrap">
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+<p style="color:#aaa;font-size:12px;font-weight:bold">Enlarged</p>
 <canvas id="rehearse-canvas"></canvas>
+</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+<p style="color:#aaa;font-size:12px;font-weight:bold">Actual Size</p>
+<canvas id="rehearse-canvas-true"></canvas>
+</div>
+</div>
 <div class="controls">
 <label>FPS:</label><input id="rehearse-fps" type="number" value="8" min="1" max="60">
 <button onclick="toggleRehearsal()">▶ Play / Pause</button>
 <button onclick="closeRehearsal()">✕ Close</button>
 </div>
-<p style="color:#666;font-size:12px">Actual pixel size</p>
 </div>
 
 <div id="export-modal">
@@ -97,6 +178,7 @@ body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-h
 </div>
 
 <input type="file" id="file-input" accept="image/*" style="display:none">
+<input type="file" id="project-input" accept=".sprb,.json" style="display:none">
 </body>
 <script>
 // ===== STATE =====
@@ -106,42 +188,87 @@ let currentFrame=0;
 let currentColor='#ffffff';
 let currentTool='pencil';
 let clipboardData=null;
+let clipboardSourceFrame=-1; // track which frame was copied for frameSources
 let zoom=1;
 let painting=false;
 let lastPx=-1,lastPy=-1;
+let undoStack=[];
+const MAX_UNDO=30;
+let frameNames=[];
+let frameSources=[];
+let isMobileLayout=false;
+
+// ===== SELECTION STATE (Task 4.1) =====
+let selectionState=null; // null | 'drawing' | 'selected' | 'floating'
+let selRect=null; // {x,y,w,h}
+let selStartX=0,selStartY=0;
+let selClipboard=null; // {w,h,data:Uint8ClampedArray}
+let floatingPixels=null; // {x,y,w,h,data:Uint8ClampedArray}
+let draggingFloating=false;
+let dragOffsetX=0,dragOffsetY=0;
+
+function pushUndo(){
+    const snap={frame:currentFrame,data:new Uint8ClampedArray(frames[currentFrame].data)};
+    undoStack.push(snap);
+    if(undoStack.length>MAX_UNDO)undoStack.shift();
+}
+
+function undoAction(){
+    if(undoStack.length===0)return;
+    const snap=undoStack.pop();
+    currentFrame=snap.frame;
+    frames[currentFrame].data.set(snap.data);
+    renderCanvas();buildFrameBar();
+}
 
 const editCanvas=document.getElementById('edit-canvas');
 const editCtx=editCanvas.getContext('2d',{willReadFrequently:true});
+
+// ===== LOGO DETECTION =====
+(function(){
+    const setupLogo=document.getElementById('setup-logo');
+    const editorLogo=document.getElementById('editor-logo');
+    const setupTitle=document.getElementById('setup-title');
+    const img1=new Image();
+    img1.onload=()=>{setupLogo.style.display='block';setupTitle.style.display='none';};
+    img1.onerror=()=>{setupLogo.style.display='none';setupTitle.style.display='block';};
+    img1.src='assets/logo.png';
+    const img2=new Image();
+    img2.onload=()=>{editorLogo.style.display='block';};
+    img2.onerror=()=>{editorLogo.style.display='none';};
+    img2.src='assets/logo-small.png';
+})();
 
 // ===== SETUP =====
 function startEditor(){
     sprW=Math.max(1,Math.min(512,parseInt(document.getElementById('inp-w').value)||32));
     sprH=Math.max(1,Math.min(512,parseInt(document.getElementById('inp-h').value)||32));
     frameCount=Math.max(1,Math.min(64,parseInt(document.getElementById('inp-frames').value)||1));
-    // Init frames as transparent
     frames=[];
     for(let i=0;i<frameCount;i++){
         const c=document.createElement('canvas');c.width=sprW;c.height=sprH;
-        const ctx=c.getContext('2d');
-        frames.push(ctx.getImageData(0,0,sprW,sprH));
+        frames.push(c.getContext('2d').getImageData(0,0,sprW,sprH));
     }
     currentFrame=0;
+    frameNames=[];frameSources=[];
+    for(let i=0;i<frameCount;i++){
+        frameNames.push('sprite-frame-'+(i+1)+'.png');
+        frameSources.push('New frame');
+    }
+    selectionState=null;selRect=null;floatingPixels=null;selClipboard=null;
     document.getElementById('setup').style.display='none';
     document.getElementById('editor').style.display='flex';
-    calcZoom();
-    buildFrameBar();
-    renderCanvas();
+    isMobileLayout=window.innerWidth<=600;
+    requestAnimationFrame(()=>{calcZoom();buildFrameBar();renderCanvas();});
 }
 
 function calcZoom(){
     const area=document.getElementById('canvas-area');
-    const maxW=area.clientWidth-40;
-    const maxH=area.clientHeight-40;
+    const maxW=area.clientWidth-60;
+    const maxH=area.clientHeight-60;
     zoom=Math.max(1,Math.min(Math.floor(maxW/sprW),Math.floor(maxH/sprH)));
-    editCanvas.width=sprW*zoom;
-    editCanvas.height=sprH*zoom;
-    editCanvas.style.width=sprW*zoom+'px';
-    editCanvas.style.height=sprH*zoom+'px';
+    editCanvas.width=sprW*zoom;editCanvas.height=sprH*zoom;
+    editCanvas.style.width=sprW*zoom+'px';editCanvas.style.height=sprH*zoom+'px';
 }
 
 // ===== FRAME BAR =====
@@ -149,36 +276,53 @@ function buildFrameBar(){
     const bar=document.getElementById('frame-bar');
     bar.innerHTML='';
     for(let i=0;i<frameCount;i++){
+        const slot=document.createElement('div');
+        slot.className='frame-slot';
+        const nameEl=document.createElement('span');
+        nameEl.className='frame-name';
+        nameEl.contentEditable='true';
+        nameEl.spellcheck=false;
+        nameEl.textContent=frameNames[i]||'sprite-frame-'+(i+1)+'.png';
+        nameEl.addEventListener('blur',(()=>{const fi=i;return function(){frameNames[fi]=this.textContent.trim()||'sprite-frame-'+(fi+1)+'.png';};})());
+        nameEl.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();nameEl.blur();}});
+        slot.appendChild(nameEl);
         const c=document.createElement('canvas');
-        c.width=sprW;c.height=sprH;c.className='frame-thumb'+(i===currentFrame?' active':'');
-        c.title='Frame '+(i+1);
-        c.onclick=()=>{currentFrame=i;buildFrameBar();renderCanvas();};
-        const ctx=c.getContext('2d');
-        ctx.putImageData(frames[i],0,0);
-        bar.appendChild(c);
+        c.width=sprW;c.height=sprH;
+        c.className='frame-thumb'+(i===currentFrame?' active':'');
+        c.title=(frameNames[i]||'Frame '+(i+1));
+        c.onclick=()=>{
+            if(floatingPixels&&selectionState==='floating'){commitFloating();}
+            currentFrame=i;buildFrameBar();renderCanvas();
+        };
+        const ctx=c.getContext('2d');ctx.putImageData(frames[i],0,0);
+        slot.appendChild(c);
+        const srcEl=document.createElement('span');
+        srcEl.className='frame-source';
+        srcEl.textContent=frameSources[i]||'New frame';
+        slot.appendChild(srcEl);
+        bar.appendChild(slot);
     }
-    // Add frame button
     const btn=document.createElement('button');
     btn.textContent='+ Add Frame';
     btn.onclick=()=>{
         const c=document.createElement('canvas');c.width=sprW;c.height=sprH;
         frames.push(c.getContext('2d').getImageData(0,0,sprW,sprH));
+        frameNames.push('sprite-frame-'+(frameCount+1)+'.png');
+        frameSources.push('New frame');
         frameCount++;buildFrameBar();
     };
     bar.appendChild(btn);
 }
 
-// ===== RENDER =====
+// ===== RENDER (Task 4.3) =====
 function renderCanvas(){
     editCtx.imageSmoothingEnabled=false;
-    // Checkerboard background for transparency
     for(let y=0;y<sprH;y++){
         for(let x=0;x<sprW;x++){
             editCtx.fillStyle=(x+y)%2===0?'#2a2a2a':'#222222';
             editCtx.fillRect(x*zoom,y*zoom,zoom,zoom);
         }
     }
-    // Draw pixels
     const data=frames[currentFrame].data;
     for(let y=0;y<sprH;y++){
         for(let x=0;x<sprW;x++){
@@ -190,24 +334,250 @@ function renderCanvas(){
             }
         }
     }
-    // Grid lines if zoomed enough
     if(zoom>=4){
         editCtx.strokeStyle='rgba(255,255,255,0.08)';editCtx.lineWidth=1;
         for(let x=0;x<=sprW;x++){editCtx.beginPath();editCtx.moveTo(x*zoom+0.5,0);editCtx.lineTo(x*zoom+0.5,sprH*zoom);editCtx.stroke();}
         for(let y=0;y<=sprH;y++){editCtx.beginPath();editCtx.moveTo(0,y*zoom+0.5);editCtx.lineTo(sprW*zoom,y*zoom+0.5);editCtx.stroke();}
     }
-    // Update color preview
+    // Selection overlay
+    if(selectionState==='selected'&&selRect){
+        editCtx.save();editCtx.strokeStyle='#fff';editCtx.lineWidth=2;editCtx.setLineDash([6,4]);
+        editCtx.strokeRect(selRect.x*zoom,selRect.y*zoom,selRect.w*zoom,selRect.h*zoom);editCtx.restore();
+    }
+    if(selectionState==='drawing'&&selRect){
+        editCtx.save();editCtx.strokeStyle='rgba(255,255,255,0.6)';editCtx.lineWidth=1;editCtx.setLineDash([4,3]);
+        editCtx.strokeRect(selRect.x*zoom,selRect.y*zoom,selRect.w*zoom,selRect.h*zoom);editCtx.restore();
+    }
+    if(selectionState==='floating'&&floatingPixels){
+        const fp=floatingPixels;
+        for(let py=0;py<fp.h;py++){
+            for(let px=0;px<fp.w;px++){
+                const idx=(py*fp.w+px)*4;
+                const a=fp.data[idx+3];
+                if(a>0){
+                    editCtx.fillStyle=`rgba(${fp.data[idx]},${fp.data[idx+1]},${fp.data[idx+2]},${a/255})`;
+                    editCtx.fillRect((fp.x+px)*zoom,(fp.y+py)*zoom,zoom,zoom);
+                }
+            }
+        }
+        editCtx.save();editCtx.strokeStyle='#88aaff';editCtx.lineWidth=2;editCtx.setLineDash([6,4]);
+        editCtx.strokeRect(fp.x*zoom,fp.y*zoom,fp.w*zoom,fp.h*zoom);editCtx.restore();
+    }
     document.getElementById('color-preview').style.background=currentColor;
+    enableTransformButtons();
 }
 
-// ===== TOOLS =====
+// ===== TRANSFORM BUTTON STATE (Task 7.2) =====
+function enableTransformButtons(){
+    const enabled=selectionState==='selected'||selectionState==='floating';
+    document.getElementById('btn-rotate-cw').disabled=!enabled;
+    document.getElementById('btn-rotate-ccw').disabled=!enabled;
+    document.getElementById('btn-flip-h').disabled=!enabled;
+}
+
+// ===== TOOLS (Task 4.1) =====
 function setTool(t){
+    if(currentTool==='selection'&&t!=='selection'){
+        if(floatingPixels&&selectionState==='floating'){commitFloating();}
+        selectionState=null;selRect=null;floatingPixels=null;
+    }
     currentTool=t;
-    document.querySelectorAll('#toolbar button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('#left-sidebar .sidebar-group button').forEach(b=>{
+        if(b.id&&b.id.startsWith('btn-'))b.classList.remove('active');
+    });
     const btn=document.getElementById('btn-'+t);
     if(btn)btn.classList.add('active');
     editCanvas.style.cursor=t==='eyedrop'?'crosshair':t==='eraser'?'cell':'crosshair';
+    renderCanvas();
 }
+
+function prevFrame(){
+    if(floatingPixels&&selectionState==='floating'){commitFloating();}
+    if(currentFrame>0){currentFrame--;buildFrameBar();renderCanvas();}
+}
+function nextFrame(){
+    if(floatingPixels&&selectionState==='floating'){commitFloating();}
+    if(currentFrame<frameCount-1){currentFrame++;buildFrameBar();renderCanvas();}
+}
+
+// ===== SELECTION HELPERS =====
+function deselectSelection(){
+    selectionState=null;selRect=null;floatingPixels=null;draggingFloating=false;
+    renderCanvas();
+}
+function pointInRect(px,py,r){
+    return r&&px>=r.x&&px<r.x+r.w&&py>=r.y&&py<r.y+r.h;
+}
+
+// ===== SELECTION CLIPBOARD (Task 5.1) =====
+function copySelection(){
+    if(selectionState!=='selected'||!selRect)return;
+    const data=frames[currentFrame].data;
+    const{x,y,w,h}=selRect;
+    const buf=new Uint8ClampedArray(w*h*4);
+    for(let py=0;py<h;py++){
+        for(let px=0;px<w;px++){
+            const srcIdx=((y+py)*sprW+(x+px))*4;
+            const dstIdx=(py*w+px)*4;
+            buf[dstIdx]=data[srcIdx];buf[dstIdx+1]=data[srcIdx+1];
+            buf[dstIdx+2]=data[srcIdx+2];buf[dstIdx+3]=data[srcIdx+3];
+        }
+    }
+    selClipboard={w,h,data:buf};
+}
+
+function cutSelection(){
+    if(selectionState!=='selected'||!selRect)return;
+    copySelection();
+    pushUndo();
+    const data=frames[currentFrame].data;
+    const{x,y,w,h}=selRect;
+    for(let py=0;py<h;py++){
+        for(let px=0;px<w;px++){
+            const idx=((y+py)*sprW+(x+px))*4;
+            data[idx]=0;data[idx+1]=0;data[idx+2]=0;data[idx+3]=0;
+        }
+    }
+    selectionState=null;selRect=null;
+    renderCanvas();buildFrameBar();
+}
+
+function pasteSelection(){
+    if(!selClipboard)return;
+    if(floatingPixels&&selectionState==='floating'){commitFloating();}
+    pushUndo();
+    const cx=Math.floor((sprW-selClipboard.w)/2);
+    const cy=Math.floor((sprH-selClipboard.h)/2);
+    floatingPixels={x:cx,y:cy,w:selClipboard.w,h:selClipboard.h,data:new Uint8ClampedArray(selClipboard.data)};
+    selectionState='floating';selRect=null;
+    renderCanvas();
+}
+
+// ===== FLOATING OVERLAY COMMIT (Task 5.2) =====
+function commitFloating(){
+    if(!floatingPixels)return;
+    const fp=floatingPixels;
+    const data=frames[currentFrame].data;
+    for(let py=0;py<fp.h;py++){
+        for(let px=0;px<fp.w;px++){
+            const dx=fp.x+px,dy=fp.y+py;
+            if(dx<0||dx>=sprW||dy<0||dy>=sprH)continue;
+            const srcIdx=(py*fp.w+px)*4;
+            const sa=fp.data[srcIdx+3];
+            if(sa===0)continue;
+            const dstIdx=(dy*sprW+dx)*4;
+            if(sa===255){
+                data[dstIdx]=fp.data[srcIdx];data[dstIdx+1]=fp.data[srcIdx+1];
+                data[dstIdx+2]=fp.data[srcIdx+2];data[dstIdx+3]=255;
+            } else {
+                const da=data[dstIdx+3];
+                const outA=sa+da*(1-sa/255);
+                if(outA>0){
+                    data[dstIdx]=Math.round((fp.data[srcIdx]*sa+data[dstIdx]*da*(1-sa/255))/outA);
+                    data[dstIdx+1]=Math.round((fp.data[srcIdx+1]*sa+data[dstIdx+1]*da*(1-sa/255))/outA);
+                    data[dstIdx+2]=Math.round((fp.data[srcIdx+2]*sa+data[dstIdx+2]*da*(1-sa/255))/outA);
+                    data[dstIdx+3]=Math.round(outA);
+                }
+            }
+        }
+    }
+    selectionState=null;floatingPixels=null;selRect=null;draggingFloating=false;
+    renderCanvas();buildFrameBar();
+}
+
+// ===== ROTATION / FLIP ALGORITHMS (Task 7.1) =====
+function rotateCWData(input){
+    const{w,h,data:src}=input;
+    const dst=new Uint8ClampedArray(w*h*4);
+    for(let y=0;y<h;y++){
+        for(let x=0;x<w;x++){
+            const srcIdx=(y*w+x)*4;
+            const nx=h-1-y,ny=x;
+            const dstIdx=(ny*h+nx)*4;
+            dst[dstIdx]=src[srcIdx];dst[dstIdx+1]=src[srcIdx+1];
+            dst[dstIdx+2]=src[srcIdx+2];dst[dstIdx+3]=src[srcIdx+3];
+        }
+    }
+    return{w:h,h:w,data:dst};
+}
+
+function rotateCCWData(input){
+    const{w,h,data:src}=input;
+    const dst=new Uint8ClampedArray(w*h*4);
+    for(let y=0;y<h;y++){
+        for(let x=0;x<w;x++){
+            const srcIdx=(y*w+x)*4;
+            const nx=y,ny=w-1-x;
+            const dstIdx=(ny*h+nx)*4;
+            dst[dstIdx]=src[srcIdx];dst[dstIdx+1]=src[srcIdx+1];
+            dst[dstIdx+2]=src[srcIdx+2];dst[dstIdx+3]=src[srcIdx+3];
+        }
+    }
+    return{w:h,h:w,data:dst};
+}
+
+function flipHData(input){
+    const{w,h,data:src}=input;
+    const dst=new Uint8ClampedArray(w*h*4);
+    for(let y=0;y<h;y++){
+        for(let x=0;x<w;x++){
+            const srcIdx=(y*w+x)*4;
+            const dstIdx=(y*w+(w-1-x))*4;
+            dst[dstIdx]=src[srcIdx];dst[dstIdx+1]=src[srcIdx+1];
+            dst[dstIdx+2]=src[srcIdx+2];dst[dstIdx+3]=src[srcIdx+3];
+        }
+    }
+    return{w,h,data:dst};
+}
+
+// ===== TRANSFORM WIRING (Task 7.2) =====
+function extractSelectionPixels(){
+    if(!selRect)return null;
+    const data=frames[currentFrame].data;
+    const{x,y,w,h}=selRect;
+    const buf=new Uint8ClampedArray(w*h*4);
+    for(let py=0;py<h;py++){
+        for(let px=0;px<w;px++){
+            const srcIdx=((y+py)*sprW+(x+px))*4;
+            const dstIdx=(py*w+px)*4;
+            buf[dstIdx]=data[srcIdx];buf[dstIdx+1]=data[srcIdx+1];
+            buf[dstIdx+2]=data[srcIdx+2];buf[dstIdx+3]=data[srcIdx+3];
+        }
+    }
+    return{w,h,data:buf};
+}
+
+function applyTransform(transformFn){
+    if(selectionState==='selected'&&selRect){
+        pushUndo();
+        const pixels=extractSelectionPixels();
+        if(!pixels)return;
+        const result=transformFn(pixels);
+        const data=frames[currentFrame].data;
+        const{x,y,w,h}=selRect;
+        for(let py=0;py<h;py++){
+            for(let px=0;px<w;px++){
+                const idx=((y+py)*sprW+(x+px))*4;
+                data[idx]=0;data[idx+1]=0;data[idx+2]=0;data[idx+3]=0;
+            }
+        }
+        const cx=Math.floor(x+(w-result.w)/2);
+        const cy=Math.floor(y+(h-result.h)/2);
+        floatingPixels={x:cx,y:cy,w:result.w,h:result.h,data:result.data};
+        selectionState='floating';selRect=null;
+        renderCanvas();buildFrameBar();
+    } else if(selectionState==='floating'&&floatingPixels){
+        pushUndo();
+        const input={w:floatingPixels.w,h:floatingPixels.h,data:floatingPixels.data};
+        const result=transformFn(input);
+        floatingPixels.w=result.w;floatingPixels.h=result.h;floatingPixels.data=result.data;
+        renderCanvas();
+    }
+}
+
+function rotateCW(){applyTransform(rotateCWData);}
+function rotateCCW(){applyTransform(rotateCCWData);}
+function flipH(){applyTransform(flipHData);}
 
 function hexToRgb(hex){
     const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
@@ -264,7 +634,6 @@ function getPixelCoords(e){
     return{x:Math.floor(mx/zoom),y:Math.floor(my/zoom)};
 }
 
-// Bresenham line for smooth painting
 function plotLine(x0,y0,x1,y1){
     const dx=Math.abs(x1-x0),dy=Math.abs(y1-y0);
     const sx=x0<x1?1:-1,sy=y0<y1?1:-1;
@@ -279,50 +648,173 @@ function plotLine(x0,y0,x1,y1){
 }
 </script>
 <script>
-// ===== CANVAS INPUT =====
+// ===== CANVAS INPUT (Task 4.2, 5.2) =====
 editCanvas.addEventListener('mousedown',e=>{
     e.preventDefault();
     const{x,y}=getPixelCoords(e);
+
+    // Selection tool handling
+    if(currentTool==='selection'){
+        // If floating, check if click is inside floating overlay
+        if(selectionState==='floating'&&floatingPixels){
+            if(pointInRect(x,y,floatingPixels)){
+                draggingFloating=true;
+                dragOffsetX=x-floatingPixels.x;
+                dragOffsetY=y-floatingPixels.y;
+                return;
+            } else {
+                // Click outside floating: commit
+                commitFloating();
+                return;
+            }
+        }
+        // If selected, check if click is outside selection
+        if(selectionState==='selected'&&selRect){
+            if(!pointInRect(x,y,selRect)){
+                deselectSelection();
+                return;
+            }
+        }
+        // Start drawing new selection
+        selectionState='drawing';
+        selStartX=x;selStartY=y;
+        selRect={x:x,y:y,w:1,h:1};
+        renderCanvas();
+        return;
+    }
+
+    // Non-selection tools
     if(currentTool==='eyedrop'){eyedrop(x,y);renderCanvas();return;}
-    if(currentTool==='fill'){floodFill(x,y);renderCanvas();buildFrameBar();return;}
+    if(currentTool==='fill'){pushUndo();floodFill(x,y);renderCanvas();buildFrameBar();return;}
     painting=true;lastPx=x;lastPy=y;
+    pushUndo();
     setPixel(x,y);renderCanvas();
 });
+
 editCanvas.addEventListener('mousemove',e=>{
-    if(!painting)return;
     const{x,y}=getPixelCoords(e);
+
+    // Selection tool: drawing marquee
+    if(currentTool==='selection'&&selectionState==='drawing'){
+        const minX=Math.max(0,Math.min(selStartX,x));
+        const minY=Math.max(0,Math.min(selStartY,y));
+        const maxX=Math.min(sprW-1,Math.max(selStartX,x));
+        const maxY=Math.min(sprH-1,Math.max(selStartY,y));
+        selRect={x:minX,y:minY,w:maxX-minX+1,h:maxY-minY+1};
+        renderCanvas();
+        return;
+    }
+
+    // Dragging floating overlay
+    if(draggingFloating&&floatingPixels){
+        floatingPixels.x=x-dragOffsetX;
+        floatingPixels.y=y-dragOffsetY;
+        renderCanvas();
+        return;
+    }
+
+    if(!painting)return;
     if(x===lastPx&&y===lastPy)return;
     plotLine(lastPx,lastPy,x,y);
     lastPx=x;lastPy=y;
     renderCanvas();
 });
-editCanvas.addEventListener('mouseup',()=>{painting=false;buildFrameBar();});
-editCanvas.addEventListener('mouseleave',()=>{painting=false;buildFrameBar();});
+
+editCanvas.addEventListener('mouseup',()=>{
+    if(currentTool==='selection'&&selectionState==='drawing'){
+        if(selRect&&selRect.w>0&&selRect.h>0){
+            selectionState='selected';
+        } else {
+            selectionState=null;selRect=null;
+        }
+        renderCanvas();
+        return;
+    }
+    if(draggingFloating){draggingFloating=false;return;}
+    painting=false;buildFrameBar();
+});
+
+editCanvas.addEventListener('mouseleave',()=>{
+    if(draggingFloating){draggingFloating=false;return;}
+    if(currentTool==='selection'&&selectionState==='drawing'){
+        if(selRect&&selRect.w>0&&selRect.h>0){
+            selectionState='selected';
+        } else {
+            selectionState=null;selRect=null;
+        }
+        renderCanvas();
+        return;
+    }
+    painting=false;buildFrameBar();
+});
 
 // Touch support
 editCanvas.addEventListener('touchstart',e=>{
     e.preventDefault();
+    if(e.touches.length>1)return;
     const t=e.touches[0];
     const{x,y}=getPixelCoords(t);
+
+    if(currentTool==='selection'){
+        if(selectionState==='floating'&&floatingPixels){
+            if(pointInRect(x,y,floatingPixels)){
+                draggingFloating=true;
+                dragOffsetX=x-floatingPixels.x;
+                dragOffsetY=y-floatingPixels.y;
+                return;
+            } else {
+                commitFloating();return;
+            }
+        }
+        if(selectionState==='selected'&&selRect){
+            if(!pointInRect(x,y,selRect)){deselectSelection();return;}
+        }
+        selectionState='drawing';selStartX=x;selStartY=y;
+        selRect={x:x,y:y,w:1,h:1};renderCanvas();return;
+    }
+
     if(currentTool==='eyedrop'){eyedrop(x,y);renderCanvas();return;}
-    if(currentTool==='fill'){floodFill(x,y);renderCanvas();buildFrameBar();return;}
+    if(currentTool==='fill'){pushUndo();floodFill(x,y);renderCanvas();buildFrameBar();return;}
     painting=true;lastPx=x;lastPy=y;
-    setPixel(x,y);renderCanvas();
+    pushUndo();setPixel(x,y);renderCanvas();
 },{passive:false});
+
 editCanvas.addEventListener('touchmove',e=>{
     e.preventDefault();
-    if(!painting)return;
+    if(e.touches.length>1)return;
     const t=e.touches[0];
     const{x,y}=getPixelCoords(t);
-    if(x===lastPx&&y===lastPy)return;
-    plotLine(lastPx,lastPy,x,y);
-    lastPx=x;lastPy=y;
-    renderCanvas();
-},{passive:false});
-editCanvas.addEventListener('touchend',()=>{painting=false;buildFrameBar();});
 
-// ===== FRAME OPERATIONS =====
+    if(currentTool==='selection'&&selectionState==='drawing'){
+        const minX=Math.max(0,Math.min(selStartX,x));
+        const minY=Math.max(0,Math.min(selStartY,y));
+        const maxX=Math.min(sprW-1,Math.max(selStartX,x));
+        const maxY=Math.min(sprH-1,Math.max(selStartY,y));
+        selRect={x:minX,y:minY,w:maxX-minX+1,h:maxY-minY+1};
+        renderCanvas();return;
+    }
+    if(draggingFloating&&floatingPixels){
+        floatingPixels.x=x-dragOffsetX;floatingPixels.y=y-dragOffsetY;
+        renderCanvas();return;
+    }
+    if(!painting)return;
+    if(x===lastPx&&y===lastPy)return;
+    plotLine(lastPx,lastPy,x,y);lastPx=x;lastPy=y;renderCanvas();
+},{passive:false});
+
+editCanvas.addEventListener('touchend',()=>{
+    if(currentTool==='selection'&&selectionState==='drawing'){
+        if(selRect&&selRect.w>0&&selRect.h>0){selectionState='selected';}
+        else{selectionState=null;selRect=null;}
+        renderCanvas();return;
+    }
+    if(draggingFloating){draggingFloating=false;return;}
+    painting=false;buildFrameBar();
+});
+
+// ===== FRAME OPERATIONS (Task 2.2) =====
 function clearFrame(){
+    pushUndo();
     const c=document.createElement('canvas');c.width=sprW;c.height=sprH;
     frames[currentFrame]=c.getContext('2d').getImageData(0,0,sprW,sprH);
     renderCanvas();buildFrameBar();
@@ -335,20 +827,34 @@ function copyFrame(){
     const copy=ctx.getImageData(0,0,sprW,sprH);
     copy.data.set(src);
     clipboardData=copy;
+    clipboardSourceFrame=currentFrame;
 }
 
 function pasteFrame(){
     if(!clipboardData)return;
+    pushUndo();
     frames[currentFrame].data.set(clipboardData.data);
+    frameSources[currentFrame]='Copied from Frame '+(clipboardSourceFrame+1);
     renderCanvas();buildFrameBar();
 }
 
-// ===== IMPORT IMAGE =====
+function deleteFrame(){
+    if(frameCount<=1)return;
+    frames.splice(currentFrame,1);
+    frameNames.splice(currentFrame,1);
+    frameSources.splice(currentFrame,1);
+    frameCount--;
+    if(currentFrame>=frameCount)currentFrame=frameCount-1;
+    renderCanvas();buildFrameBar();
+}
+
+// ===== IMPORT IMAGE (Task 2.2) =====
 function importImage(){
     document.getElementById('file-input').click();
 }
 document.getElementById('file-input').addEventListener('change',e=>{
     const file=e.target.files[0];if(!file)return;
+    const filename=file.name;
     const reader=new FileReader();
     reader.onload=ev=>{
         const img=new Image();
@@ -357,6 +863,7 @@ document.getElementById('file-input').addEventListener('change',e=>{
             const ctx=c.getContext('2d');
             ctx.drawImage(img,0,0,sprW,sprH);
             frames[currentFrame]=ctx.getImageData(0,0,sprW,sprH);
+            frameSources[currentFrame]='Imported: '+filename;
             renderCanvas();buildFrameBar();
         };
         img.src=ev.target.result;
@@ -365,26 +872,35 @@ document.getElementById('file-input').addEventListener('change',e=>{
     e.target.value='';
 });
 
-// ===== REHEARSAL =====
+// ===== REHEARSAL (Task 8.1 — Dual Canvas) =====
 let rehearsalPlaying=false,rehearsalFrame=0,rehearsalInterval=null;
 
 function openRehearsal(){
     const modal=document.getElementById('rehearsal');
     modal.style.display='flex';
+    // Enlarged canvas
     const rc=document.getElementById('rehearse-canvas');
     rc.width=sprW;rc.height=sprH;
-    // Scale up for visibility but keep actual pixel size label
     const scale=Math.max(1,Math.min(8,Math.floor(300/Math.max(sprW,sprH))));
     rc.style.width=sprW*scale+'px';rc.style.height=sprH*scale+'px';
+    // True-size canvas
+    const tc=document.getElementById('rehearse-canvas-true');
+    tc.width=sprW;tc.height=sprH;
+    tc.style.width=sprW+'px';tc.style.height=sprH+'px';
     rehearsalFrame=0;
     drawRehearsalFrame();
 }
 
 function drawRehearsalFrame(){
+    const frameData=frames[rehearsalFrame%frameCount];
     const rc=document.getElementById('rehearse-canvas');
-    const ctx=rc.getContext('2d');
-    ctx.clearRect(0,0,sprW,sprH);
-    ctx.putImageData(frames[rehearsalFrame%frameCount],0,0);
+    const rctx=rc.getContext('2d');
+    rctx.clearRect(0,0,sprW,sprH);
+    rctx.putImageData(frameData,0,0);
+    const tc=document.getElementById('rehearse-canvas-true');
+    const tctx=tc.getContext('2d');
+    tctx.clearRect(0,0,sprW,sprH);
+    tctx.putImageData(frameData,0,0);
 }
 
 function toggleRehearsal(){
@@ -414,17 +930,15 @@ function openExport(){
     list.innerHTML='';
     for(let i=0;i<frameCount;i++){
         const row=document.createElement('div');row.className='export-row';
-        // Preview
         const c=document.createElement('canvas');c.width=sprW;c.height=sprH;
         c.style.width=Math.max(32,sprW)+'px';c.style.height=Math.max(32,sprH)+'px';
         c.style.imageRendering='pixelated';
         const ctx=c.getContext('2d');ctx.putImageData(frames[i],0,0);
         row.appendChild(c);
-        // Filename input
         const inp=document.createElement('input');
-        inp.type='text';inp.value='sprite-frame-'+(i+1)+'.png';inp.id='export-name-'+i;
+        inp.type='text';inp.value=frameNames[i]||'sprite-frame-'+(i+1)+'.png';inp.id='export-name-'+i;
+        inp.onchange=(()=>{const fi=i;return()=>{frameNames[fi]=document.getElementById('export-name-'+fi).value;buildFrameBar();};})();
         row.appendChild(inp);
-        // Download button
         const btn=document.createElement('button');
         btn.textContent='⬇ Download';
         btn.onclick=(()=>{const fi=i;return()=>downloadFrame(fi);})();
@@ -450,21 +964,96 @@ function closeExport(){
     document.getElementById('export-modal').style.display='none';
 }
 
-// ===== KEYBOARD SHORTCUTS =====
+// ===== SAVE / LOAD PROJECT (Task 2.2, 10.3) =====
+function saveProject(){
+    const project={
+        version:1,
+        width:sprW,height:sprH,frameCount,
+        frames:frames.map(f=>Array.from(f.data)),
+        frameNames,
+        frameSources
+    };
+    const json=JSON.stringify(project);
+    const blob=new Blob([json],{type:'application/json'});
+    const link=document.createElement('a');
+    link.download='sprite-project.sprb';
+    link.href=URL.createObjectURL(blob);
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+
+function loadProject(){
+    document.getElementById('project-input').click();
+}
+document.getElementById('project-input').addEventListener('change',e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+        try{
+            const project=JSON.parse(ev.target.result);
+            sprW=project.width;sprH=project.height;
+            frameCount=project.frameCount;
+            frames=project.frames.map(arr=>{
+                const c=document.createElement('canvas');c.width=sprW;c.height=sprH;
+                const ctx=c.getContext('2d');
+                const imgData=ctx.getImageData(0,0,sprW,sprH);
+                imgData.data.set(new Uint8ClampedArray(arr));
+                return imgData;
+            });
+            currentFrame=0;undoStack=[];
+            frameNames=project.frameNames||frames.map((_,i)=>'sprite-frame-'+(i+1)+'.png');
+            frameSources=project.frameSources||frames.map(()=>'New frame');
+            // Reset selection state on load
+            selectionState=null;selRect=null;floatingPixels=null;selClipboard=null;draggingFloating=false;
+            document.getElementById('setup').style.display='none';
+            document.getElementById('editor').style.display='flex';
+            requestAnimationFrame(()=>{calcZoom();buildFrameBar();renderCanvas();});
+        }catch(err){alert('Invalid project file.');}
+    };
+    reader.readAsText(file);
+    e.target.value='';
+});
+
+// ===== KEYBOARD SHORTCUTS (Task 10.2) =====
 document.addEventListener('keydown',e=>{
     if(document.getElementById('setup').style.display!=='none')return;
-    if(e.target.tagName==='INPUT')return;
+    if(e.target.tagName==='INPUT'||e.target.isContentEditable)return;
+
+    // Ctrl/Cmd shortcuts
+    if(e.ctrlKey||e.metaKey){
+        if(e.key==='z'){e.preventDefault();undoAction();return;}
+        // Selection clipboard shortcuts
+        if(e.key==='c'&&(selectionState==='selected')){e.preventDefault();copySelection();return;}
+        if(e.key==='x'&&(selectionState==='selected')){e.preventDefault();cutSelection();return;}
+        if(e.key==='v'&&selClipboard){e.preventDefault();pasteSelection();return;}
+        return;
+    }
+
+    // Escape deselects
+    if(e.key==='Escape'){
+        if(selectionState==='floating'&&floatingPixels){commitFloating();return;}
+        if(selectionState){deselectSelection();return;}
+    }
+    // Enter commits floating
+    if(e.key==='Enter'&&selectionState==='floating'&&floatingPixels){commitFloating();return;}
+
+    // Tool shortcuts
     if(e.key==='p')setTool('pencil');
     if(e.key==='e')setTool('eraser');
     if(e.key==='i')setTool('eyedrop');
     if(e.key==='f')setTool('fill');
+    if(e.key==='s')setTool('selection');
+    // Frame navigation
     if(e.key==='['&&currentFrame>0){currentFrame--;buildFrameBar();renderCanvas();}
     if(e.key===']'&&currentFrame<frameCount-1){currentFrame++;buildFrameBar();renderCanvas();}
 });
 
 // ===== RESIZE =====
 window.addEventListener('resize',()=>{
-    if(document.getElementById('editor').style.display==='flex'){calcZoom();renderCanvas();}
+    if(document.getElementById('editor').style.display==='flex'){
+        isMobileLayout=window.innerWidth<=600;
+        calcZoom();renderCanvas();
+    }
 });
 </script>
 </html>
