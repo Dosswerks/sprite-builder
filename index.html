@@ -180,6 +180,10 @@ body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-h
 
 <div id="export-modal">
 <h2>Export Frames as PNG</h2>
+<div id="export-folder-row" style="display:none;margin-bottom:10px;align-items:center;gap:10px">
+<button onclick="pickExportFolder()" style="padding:6px 14px;font-size:12px;font-weight:bold;background:#4466aa;border:none;border-radius:4px;color:#fff;cursor:pointer">📂 Choose Folder…</button>
+<span id="export-folder-label" style="color:#aaa;font-size:12px">Default downloads folder</span>
+</div>
 <div id="export-list"></div>
 <button onclick="exportAll()">⬇ Download All</button>
 <button onclick="closeExport()" style="background:#666">✕ Close</button>
@@ -931,9 +935,13 @@ function closeRehearsal(){
 }
 
 // ===== EXPORT =====
+let exportDirHandle=null;
+
 function openExport(){
     const modal=document.getElementById('export-modal');
     modal.style.display='flex';
+    const folderRow=document.getElementById('export-folder-row');
+    folderRow.style.display=('showDirectoryPicker' in window)?'flex':'none';
     const list=document.getElementById('export-list');
     list.innerHTML='';
     for(let i=0;i<frameCount;i++){
@@ -955,17 +963,43 @@ function openExport(){
     }
 }
 
-function downloadFrame(i){
+async function pickExportFolder(){
+    try{
+        exportDirHandle=await window.showDirectoryPicker({mode:'readwrite'});
+        document.getElementById('export-folder-label').textContent='📁 '+exportDirHandle.name;
+    }catch(e){
+        if(e.name!=='AbortError') console.error(e);
+    }
+}
+
+function frameToBlob(i){
+    return new Promise(resolve=>{
+        const c=document.createElement('canvas');c.width=sprW;c.height=sprH;
+        const ctx=c.getContext('2d');ctx.putImageData(frames[i],0,0);
+        c.toBlob(resolve,'image/png');
+    });
+}
+
+async function downloadFrame(i){
+    const name=document.getElementById('export-name-'+i).value||'frame-'+(i+1)+'.png';
+    if(exportDirHandle){
+        try{
+            const blob=await frameToBlob(i);
+            const fh=await exportDirHandle.getFileHandle(name,{create:true});
+            const w=await fh.createWritable();
+            await w.write(blob);await w.close();
+            return;
+        }catch(e){console.error(e);}
+    }
     const c=document.createElement('canvas');c.width=sprW;c.height=sprH;
     const ctx=c.getContext('2d');ctx.putImageData(frames[i],0,0);
-    const name=document.getElementById('export-name-'+i).value||'frame-'+(i+1)+'.png';
     const link=document.createElement('a');
     link.download=name;link.href=c.toDataURL('image/png');
     link.click();
 }
 
-function exportAll(){
-    for(let i=0;i<frameCount;i++)downloadFrame(i);
+async function exportAll(){
+    for(let i=0;i<frameCount;i++) await downloadFrame(i);
 }
 
 function closeExport(){

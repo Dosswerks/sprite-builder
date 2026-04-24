@@ -55,6 +55,7 @@ A browser-based pixel art editor for building video game sprites with frame anim
 
 - Export each frame as a transparent PNG
 - Custom filename per frame (editable in frame bar or export modal)
+- Choose a destination folder via the File System Access API (Chrome/Edge); falls back to default Downloads folder on unsupported browsers
 - Download individually or all at once (frame index order)
 
 ### Save / Load
@@ -133,7 +134,7 @@ If the logo files are not found, the text title is shown as fallback.
 Single-file HTML5 Canvas application with no external dependencies. All rendering, input handling, and export logic contained in one `index.html`. Works on desktop and mobile browsers.
 
 - Canvas rendering uses `willReadFrequently` optimization for pixel-level read/write operations
-- Export uses `canvas.toDataURL('image/png')` for lossless transparent output
+- Export uses `canvas.toBlob()` with File System Access API for saving to a chosen folder, or `canvas.toDataURL('image/png')` fallback for lossless transparent output
 - 30-level undo stack (pixel operations only; frame add/delete are not undoable)
 - Flood fill uses exact RGBA byte equality (no tolerance)
 - Touch input: single-touch only, multi-touch ignored, `touch-action: none` on canvas
