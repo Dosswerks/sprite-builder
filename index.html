@@ -8,7 +8,10 @@
 <meta property="og:title" content="Sprite Builder">
 <meta property="og:description" content="A browser-based pixel art editor for building video game sprites with frame animation support.">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://dosswerks.github.io/sprite-builder/assets/logo.png">
+<meta property="og:url" content="https://dosswerks.github.io/sprite-builder/">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://dosswerks.github.io/sprite-builder/assets/logo.png">
 <meta name="twitter:title" content="Sprite Builder">
 <meta name="twitter:description" content="A browser-based pixel art editor for building video game sprites with frame animation support.">
 <style>
@@ -82,6 +85,7 @@ body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-h
 #editor-logo-area{display:none!important}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -95,8 +99,9 @@ body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-h
 <div style="text-align:center"><label>Frames:</label><br><input id="inp-frames" type="number" value="1" min="1" max="64"></div>
 </div>
 <button onclick="startEditor()">Start Editing</button>
-<div id="donate-section" style="margin-top:28px;max-width:420px;text-align:center">
+<div id="donate-section" style="margin-top:28px;max-width:520px;text-align:center">
 <p style="font-size:13px;color:#aaa;line-height:1.6;margin-bottom:12px">Enjoying the app? If you'd like to support its continued development, you can leave a tip here. No pressure—thanks for using it!</p>
+<div style="display:flex;align-items:center;justify-content:center;gap:20px">
 <form action="https://www.paypal.com/donate" method="post" target="_blank">
 <input type="hidden" name="hosted_button_id" value="HDD77QKGC6XXN">
 <button type="submit" style="padding:0;background:none;border:none;cursor:pointer;display:inline-flex;flex-direction:column;align-items:center;gap:4px;transition:transform 0.2s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
@@ -131,6 +136,11 @@ body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-h
 </svg>
 </button>
 </form>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+<div id="qr-code" style="background:#fff;padding:4px;border-radius:4px"></div>
+<span style="font-size:10px;color:#666">Scan to tip</span>
+</div>
+</div>
 </div>
 </div>
 
@@ -235,6 +245,15 @@ body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-h
 
 <input type="file" id="file-input" accept="image/*" style="display:none">
 <input type="file" id="project-input" accept=".sprb,.json" style="display:none">
+<script>
+(function(){
+  var qr = qrcode(0, 'L');
+  qr.addData('https://www.paypal.com/donate/?hosted_button_id=HDD77QKGC6XXN');
+  qr.make();
+  var el = document.getElementById('qr-code');
+  if (el) el.innerHTML = qr.createSvgTag({cellSize:2, margin:0});
+})();
+</script>
 </body>
 <script>
 // ===== STATE =====
