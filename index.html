@@ -81,13 +81,20 @@ body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-h
 <div id="setup">
 <img id="setup-logo" src="assets/logo.png" alt="Sprite Builder" style="max-width:320px;max-height:120px;display:none">
 <h1 id="setup-title">🎨 Sprite Builder</h1>
-<p style="font-size:11px;color:#666;margin-top:4px"><a href="https://www.andrewdoss.com/" target="_blank" style="color:#666;text-decoration:none">Copyright © 2026 Andrew Doss. All Rights Reserved.</a></p>
+<p style="font-size:14px;color:#fff;margin-top:4px"><a href="https://www.andrewdoss.com/" target="_blank" style="color:#fff;text-decoration:none">Copyright © 2026 Andrew Doss. All Rights Reserved.</a></p>
 <div style="display:flex;gap:20px;align-items:flex-end">
 <div style="text-align:center"><label>Width (px):</label><br><input id="inp-w" type="number" value="32" min="1" max="512"></div>
 <div style="text-align:center"><label>Height (px):</label><br><input id="inp-h" type="number" value="32" min="1" max="512"></div>
 <div style="text-align:center"><label>Frames:</label><br><input id="inp-frames" type="number" value="1" min="1" max="64"></div>
 </div>
 <button onclick="startEditor()">Start Editing</button>
+<div id="donate-section" style="margin-top:28px;max-width:420px;text-align:center;padding:16px 20px;background:#22223a;border:1px solid #333;border-radius:8px">
+<p style="font-size:13px;color:#aaa;line-height:1.6;margin-bottom:12px">Enjoying the app? If you'd like to support its continued development, you can leave a tip here. No pressure—thanks for using it!</p>
+<form action="https://www.paypal.com/donate" method="post" target="_blank">
+<input type="hidden" name="hosted_button_id" value="HDD77QKGC6XXN">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to give online!" alt="Donate with PayPal button">
+</form>
+</div>
 </div>
 
 <div id="editor">
@@ -120,7 +127,7 @@ body{background:#1a1a2e;color:#eee;font-family:'Segoe UI',Arial,sans-serif;min-h
 <div style="flex:1"></div>
 <div id="editor-logo-area" style="padding:8px;text-align:center">
 <img id="editor-logo" src="assets/logo-small.png" alt="Sprite Builder" style="max-width:140px;max-height:80px;opacity:0.5;display:none">
-<p style="font-size:9px;color:#555;margin-top:4px"><a href="https://www.andrewdoss.com/" target="_blank" style="color:#555;text-decoration:none">Copyright © 2026 Andrew Doss.<br>All Rights Reserved.</a></p>
+<p style="font-size:12px;color:#fff;margin-top:4px"><a href="https://www.andrewdoss.com/" target="_blank" style="color:#fff;text-decoration:none">Copyright © 2026 Andrew Doss.<br>All Rights Reserved.</a></p>
 </div>
 </div>
 <div id="center-column">
